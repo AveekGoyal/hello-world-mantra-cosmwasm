@@ -1,0 +1,1 @@
+ed6ff4ee872280248babbb3251b2b953490fe4278837e9314fe2fb27dfe7b594  hello_world_contract.wasm

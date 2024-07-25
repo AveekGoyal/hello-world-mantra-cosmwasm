@@ -1,0 +1,42 @@
+
+Commands
+
+cargo build --target wasm32-unknown-unknown --release
+
+docker run --rm -v "$(pwd)":/code \                                             
+  --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
+  --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
+  cosmwasm/rust-optimizer:0.12.11
+
+mantrachaind query wasm list-code --node https://rpc.hongbai.mantrachain.io:443 
+
+RES=$(mantrachaind tx wasm store artifacts/hello_world_contract.wasm --from wallet --node https://rpc.hongbai.mantrachain.io:443 --chain-id mantra-hongbai-1 --gas-prices 0.0002uom --gas auto --gas-adjustment 2 -y --output json)echo $RES                          
+
+TX_HASH=$(echo $RES | jq -r .txhash)CODE_ID=$(mantrachaind query tx --type hash $TX_HASH --node https://rpc.hongbai.mantrachain.io:443 -o json| jq -r '.logs[0].events[] | select(.type == "store_code") | .attributes[] | select(.key == "code_id") | .value')
+echo $CODE_ID
+
+mantrachaind tx wasm instantiate $CODE_ID '{"message":"Hello, World!"}' --from wallet --label "hello_world_contract" $TXFLAG -y --no-admin
+
+mantrachaind query wasm list-contract-by-code $CODE_ID $NODE --output json
+
+CONTRACT=$(mantrachaind query wasm list-contract-by-code $CODE_ID $NODE --output json | jq -r '.contracts[-1]')
+
+echo $CONTRACT
+
+mantrachaind query wasm contract $CONTRACT $NODE
+
+mantrachaind query wasm contract-state all $CONTRACT $NODE
+
+echo "eyJtZXNzYWdlIjoiSGVsbG8sIFdvcmxkISJ9" | base64 -d
+
+
+
+echo "eyJjb250cmFjdCI6ImhlbGxvX3dvcmxkIiwidmVyc2lvbiI6IjEuMC4wIn0=" | base64 -d
+
+
+echo "eyJtZXNzYWdlIjoiSGVsbG8sIE1BTlRSQSBDaGFpbiEifQ==" | base64 -d
+
+
+
+
+mantrachaind tx wasm instantiate $CODE_ID '{"message":"Hello, MANTRA Chain!"}' --from wallet --label "hello_world_contract" $TXFLAG -y --no-admin

@@ -1,0 +1,1 @@
+d241cdaea3f51b84e5c0470dbd5d4b14379b7e865adfaf96c758f44cec2be221  ./target/wasm32-unknown-unknown/release/hello_world_contract.wasm
